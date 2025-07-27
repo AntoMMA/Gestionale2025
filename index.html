@@ -1,0 +1,850 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.5">
+    <meta name="description" content="Gestione dipendenti e calcolo stipendi">
+    <title>Gestione Aziendale</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #003c96;
+            --secondary-color: #000411;
+            --text-color: #E0E0E0;
+            --header-color: #0059ac;
+            --background-dark: #212121;
+            --card-background: #2E2E2E;
+            --border-color: #424242;
+            --table-header-bg: #3A3A3A;
+            --summary-bg: #1d1d1d;
+            --summary-border: #130031;
+            --font-family: 'Roboto', Arial, sans-serif;
+            --input-bg: #3A3A3A;
+            --input-text: #F5F5F5;
+        }
+
+        body {
+            color: var(--text-color);
+            font-family: var(--font-family);
+            margin: auto;
+            padding: 100px;
+            background-color: var(--background-dark);
+            line-height: 1.6;
+        }
+
+        .container {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 100px;
+            max-width: 1000px;
+            margin: auto;
+        }
+
+        .main-content {
+            background-color: var(--card-background);
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        h1, h2 {
+            text-align: center;
+            color: var(--header-color);
+            margin-bottom: 25px;
+            font-weight: 700;
+        }
+
+        .collapsible-container {
+            margin-bottom: 20px;
+        }
+
+        .collapsible-title {
+            cursor: pointer;
+            font-size: 1.2em;
+            font-weight: bold;
+            padding: 10px;
+            background-color: #3A3A3A;
+            border-radius: 5px;
+            margin-bottom: 5px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .collapsible-title:hover {
+            background-color: #4A4A4A;
+        }
+
+        .collapsible-content {
+            padding: 10px;
+            border: 1px solid var(--border-color);
+            border-top: none;
+            border-radius: 0 0 5px 5px;
+            display: none;
+        }
+
+        .collapsible-content.active {
+            display: block;
+        }
+
+        .collapsible-icon {
+            transition: transform 0.3s ease;
+        }
+
+        .collapsible-title.active .collapsible-icon {
+            transform: rotate(90deg);
+        }
+
+        .input-group {
+            margin-bottom: 25px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+
+        input[type="text"], input[type="date"], input[type="number"], select {
+            width: calc(100% - 24px);
+            padding: 12px;
+            font-size: 1em;
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+            box-sizing: border-box;
+            background-color: var(--input-bg);
+            color: var(--input-text);
+        }
+
+        input[type="file"] {
+            display: block;
+            width: 100%;
+            margin-top: 10px;
+            padding: 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+            background-color: var(--input-bg);
+            color: var(--input-text);
+        }
+
+        .image-preview-container {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 10px;
+        }
+
+        .image-preview {
+            max-width: 150px;
+            max-height: 150px;
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+            object-fit: cover;
+            display: none;
+        }
+
+        .employee-list {
+            display: grid;
+            gap: 15px;
+        }
+
+        .employee-card {
+            background-color: #3A3A3A;
+            padding: 15px;
+            border-radius: 5px;
+            display: grid;
+            grid-template-columns: 1fr auto;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .employee-info h4 {
+            margin: 0 0 5px 0;
+            color: var(--header-color);
+        }
+
+        .employee-info p {
+            margin: 0;
+            font-size: 0.9em;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 5px;
+            align-items: center;
+        }
+
+        .grade-select {
+            width: auto;
+        }
+
+        button {
+            display: block;
+            width: 100%;
+            padding: 15px;
+            font-size: 1.1em;
+            font-weight: bold;
+            background-color: var(--primary-color);
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            margin-top: 10px;
+        }
+
+        button:hover {
+            background-color: #010046;
+        }
+
+        .btn-small {
+            width: auto;
+            padding: 8px 12px;
+            font-size: 0.9em;
+            margin-top: 0;
+        }
+        
+        .btn-edit {
+            background-color: #f0ad4e;
+            color: #fff;
+        }
+        
+        .btn-edit:hover {
+            background-color: #ec971f;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        th, td {
+            border: 1px solid var(--border-color);
+            padding: 12px 15px;
+            text-align: left;
+            vertical-align: top;
+        }
+
+        th {
+            background-color: var(--table-header-bg);
+            color: var(--header-color);
+            font-weight: 700;
+        }
+
+        tbody tr:nth-child(even) {
+            background-color: #383838;
+        }
+
+        tbody tr:hover {
+            background-color: #4A4A4A;
+            transition: background-color 0.3s ease;
+        }
+
+        .centered-text {
+            text-align: center;
+        }
+
+        @keyframes rainbowShadow {
+          0% { box-shadow: 0 0 15px rgb(255,0,0); }
+          25% { box-shadow: 0 0 15px rgb(0,255,0); }
+          50% { box-shadow: 0 0 15px rgb(0,0,255); }
+          75% { box-shadow: 0 0 15px rgb(255,255,0); }
+          100% { box-shadow: 0 0 15px rgb(255,0,255); }
+        }
+        .main-content, .collapsible-content, .collapsible-title, button {
+          animation: rainbowShadow 5s infinite alternate;
+        }
+
+        .rate-input {
+            width: 80px;
+            text-align: right;
+            padding: 5px;
+        }
+
+        .rate-table-container {
+            max-height: 250px;
+            overflow-y: auto;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="main-content">
+        <h1>Gestione Aziendale</h1>
+
+        <div class="collapsible-container">
+            <div class="collapsible-title" id="toggleGestioneDipendentiBtn">
+                Gestione dipendenti
+                <span class="collapsible-icon">></span>
+            </div>
+            <div id="gestioneDipendentiContent" class="collapsible-content">
+                <h2>Registra un nuovo dipendente</h2>
+                <div class="input-group">
+                    <label for="employeeGrade">Grado:</label>
+                    <select id="employeeGrade"></select>
+                </div>
+                <div class="input-group">
+                    <label for="employeeName">Nome e Cognome:</label>
+                    <input type="text" id="employeeName" placeholder="Inserisci nome e cognome">
+                </div>
+                <div class="input-group">
+                    <label for="employeeDob">Data di nascita:</label>
+                    <input type="date" id="employeeDob">
+                </div>
+                <div class="input-group">
+                    <label for="employeeAge">Età:</label>
+                    <input type="text" id="employeeAge" placeholder="Calcolata automaticamente" readonly>
+                </div>
+                <div class="input-group">
+                    <label for="employeeHireDate">Assunto il:</label>
+                    <input type="date" id="employeeHireDate">
+                </div>
+
+                <div class="input-group">
+                    <label for="patenteFile">Patente:</label>
+                    <input type="file" id="patenteFile" accept="image/*">
+                    <img id="patentePreview" class="image-preview">
+                </div>
+
+                <div class="input-group">
+                    <label for="idFile">Documento D'Identità:</label>
+                    <input type="file" id="idFile" accept="image/*">
+                    <img id="idPreview" class="image-preview">
+                </div>
+
+                <div class="input-group">
+                    <label for="lavorativoFile">Documento Lavorativo:</label>
+                    <input type="file" id="lavorativoFile" accept="image/*">
+                    <img id="lavorativoPreview" class="image-preview">
+                </div>
+
+                <button id="hireEmployeeBtn">Assumi dipendente</button>
+            </div>
+        </div>
+
+        <div class="collapsible-container">
+            <div class="collapsible-title" id="toggleRegistroDipendentiBtn">
+                Registro Dipendenti
+                <span class="collapsible-icon">></span>
+            </div>
+            <div id="registroDipendentiContent" class="collapsible-content">
+                <div id="employeeList" class="employee-list">
+                    <p class="centered-text">Nessun dipendente registrato.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="collapsible-container">
+            <div class="collapsible-title" id="toggleCalcolatoreStipendiBtn">
+                Calcolatore degli stipendi
+                <span class="collapsible-icon">></span>
+            </div>
+            <div id="calcolatoreStipendiContent" class="collapsible-content">
+                <div class="collapsible-container">
+                    <div class="collapsible-title" id="toggleGradoStipendiBtn">
+                        Definisci stipendi per grado
+                        <span class="collapsible-icon">></span>
+                    </div>
+                    <div id="gradoStipendiContent" class="collapsible-content">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Grado</th>
+                                    <th>Stipendio ogni mezz'ora ($)</th>
+                                </tr>
+                            </thead>
+                            <tbody id="gradeRatesTableBody">
+                                </tbody>
+                        </table>
+                        <button id="saveRatesBtn">Salva stipendi per grado</button>
+                    </div>
+                </div>
+
+                <h2>Calcolo stipendi per dipendente</h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Dipendente</th>
+                            <th>Grado</th>
+                            <th>Ore Svolte</th>
+                            <th>Stipendio Totale</th>
+                        </tr>
+                    </thead>
+                    <tbody id="stipendiTableBody">
+                        <tr id="noEmployeesRow"><td colspan="4" class="centered-text">Nessun dipendente registrato.</td></tr>
+                    </tbody>
+                </table>
+                <button id="calcolaStipendiBtn">Calcola stipendi</button>
+                <button id="downloadTableBtn" style="display: none;">Scarica Tabella</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.2/html2pdf.bundle.min.js"></script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const grades = [
+            'Tirocinante', 'Autista', 'Autista Esperto', 'Responsabile Autisti',
+            'Supervisore Generale', 'Supervisore Sandy', 'Supervisore Los Santos',
+            'Vice Direttore', 'Direttore'
+        ];
+
+        // Popola il select per i gradi
+        const employeeGradesSelect = document.getElementById('employeeGrade');
+        grades.forEach(grade => {
+            const option = document.createElement('option');
+            option.value = grade;
+            option.textContent = grade;
+            employeeGradesSelect.appendChild(option);
+        });
+
+        // Gestione delle sezioni a tendina
+        const collapsibleButtons = document.querySelectorAll('.collapsible-title');
+        collapsibleButtons.forEach(button => {
+            button.addEventListener('click', (event) => {
+                event.stopPropagation(); // Evita che l'evento si propaghi ai genitori
+                const content = button.nextElementSibling;
+                const icon = button.querySelector('.collapsible-icon');
+                const isVisible = content.style.display === 'block';
+
+                // Chiudi solo le sezioni di pari livello
+                const parent = button.closest('.collapsible-container');
+                const siblings = parent.querySelectorAll('.collapsible-content');
+                siblings.forEach(sibling => {
+                    if (sibling !== content) {
+                        sibling.style.display = 'none';
+                        sibling.previousElementSibling.classList.remove('active');
+                        sibling.previousElementSibling.querySelector('.collapsible-icon').style.transform = 'rotate(0deg)';
+                    }
+                });
+
+                if (!isVisible) {
+                    content.style.display = 'block';
+                    button.classList.add('active');
+                    icon.style.transform = 'rotate(90deg)';
+                } else {
+                    content.style.display = 'none';
+                    button.classList.remove('active');
+                    icon.style.transform = 'rotate(0deg)';
+                }
+            });
+        });
+
+        // Funzione per il calcolo dell'età
+        document.getElementById('employeeDob').addEventListener('change', (event) => {
+            const dob = new Date(event.target.value);
+            if (!isNaN(dob)) {
+                const today = new Date();
+                let age = today.getFullYear() - dob.getFullYear();
+                const m = today.getMonth() - dob.getMonth();
+                if (m < 0 || (m === 0 && today.getDate() < dob.getDate())) {
+                    age--;
+                }
+                document.getElementById('employeeAge').value = age;
+            } else {
+                document.getElementById('employeeAge').value = '';
+            }
+        });
+
+        // Funzione per mostrare l'anteprima delle immagini
+        function setupImagePreview(fileInputId, previewImgId) {
+            const fileInput = document.getElementById(fileInputId);
+            const previewImg = document.getElementById(previewImgId);
+            fileInput.addEventListener('change', (event) => {
+                const file = event.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        previewImg.src = e.target.result;
+                        previewImg.style.display = 'block';
+                    };
+                    reader.readAsDataURL(file);
+                } else {
+                    previewImg.src = '';
+                    previewImg.style.display = 'none';
+                }
+            });
+        }
+
+        setupImagePreview('patenteFile', 'patentePreview');
+        setupImagePreview('idFile', 'idPreview');
+        setupImagePreview('lavorativoFile', 'lavorativoPreview');
+
+        // Funzione per assumere un dipendente
+        document.getElementById('hireEmployeeBtn').addEventListener('click', async () => {
+            const grade = document.getElementById('employeeGrade').value;
+            const name = document.getElementById('employeeName').value;
+            const dob = document.getElementById('employeeDob').value;
+            const hireDate = document.getElementById('employeeHireDate').value;
+
+            const patentePreview = document.getElementById('patentePreview').src;
+            const idPreview = document.getElementById('idPreview').src;
+            const lavorativoPreview = document.getElementById('lavorativoPreview').src;
+
+            if (name && dob && hireDate) {
+                const newEmployee = {
+                    grade,
+                    name,
+                    dob,
+                    hireDate,
+                    patenteImage: patentePreview,
+                    idImage: idPreview,
+                    lavorativoImage: lavorativoPreview
+                };
+
+                try {
+                    const response = await fetch('/.netlify/functions/addEmployee', {
+                        method: 'POST',
+                        body: JSON.stringify(newEmployee),
+                        headers: { 'Content-Type': 'application/json' },
+                    });
+
+                    if (response.ok) {
+                        alert('Dipendente ' + name + ' assunto con successo!');
+                        renderEmployeeList();
+                        renderStipendiTable();
+
+                        // Pulisci il form
+                        document.getElementById('employeeName').value = '';
+                        document.getElementById('employeeDob').value = '';
+                        document.getElementById('employeeHireDate').value = '';
+                        document.getElementById('employeeAge').value = '';
+                        document.getElementById('patentePreview').src = '';
+                        document.getElementById('patentePreview').style.display = 'none';
+                        document.getElementById('idPreview').src = '';
+                        document.getElementById('idPreview').style.display = 'none';
+                        document.getElementById('lavorativoPreview').src = '';
+                        document.getElementById('lavorativoPreview').style.display = 'none';
+                    } else {
+                        alert("Si è verificato un errore durante l'assunzione. Codice di stato: " + response.status);
+                    }
+                } catch (e) {
+                    console.error("Errore nell'assumere il dipendente: ", e);
+                    alert("Si è verificato un errore durante l'assunzione. Controlla la console per i dettagli.");
+                }
+            } else {
+                alert('Per favore, compila tutti i campi obbligatori (Nome e Cognome, Data di Nascita, Assunto il).');
+            }
+        });
+
+        // Funzione per renderizzare la lista dei dipendenti
+        async function renderEmployeeList() {
+            const employeeList = document.getElementById('employeeList');
+            employeeList.innerHTML = '';
+            
+            try {
+                const response = await fetch('/.netlify/functions/getEmployees');
+                const employees = await response.json();
+
+                if (employees.length === 0) {
+                    employeeList.innerHTML = '<p class="centered-text">Nessun dipendente registrato.</p>';
+                    return;
+                }
+
+                employees.forEach((employee) => {
+                    const formattedDob = new Date(employee.dob).toLocaleDateString('it-IT');
+                    const formattedHireDate = new Date(employee.hire_date).toLocaleDateString('it-IT');
+                    const card = document.createElement('div');
+                    card.classList.add('employee-card');
+                    card.innerHTML = `
+                        <div class="employee-info">
+                            <h4>${employee.name}</h4>
+                            <p><strong>Grado:</strong> <span class="employee-grade-span">${employee.grade}</span></p>
+                            <p><strong>Nato il:</strong> ${formattedDob}</p>
+                            <p><strong>Assunto il:</strong> ${formattedHireDate}</p>
+                            <div class="image-preview-container">
+                                <img src="${employee.patente_image}" alt="Patente" class="image-preview" style="display: ${employee.patente_image ? 'block' : 'none'};">
+                                <img src="${employee.id_image}" alt="Documento d'Identità" class="image-preview" style="display: ${employee.id_image ? 'block' : 'none'};">
+                                <img src="${employee.lavorativo_image}" alt="Documento Lavorativo" class="image-preview" style="display: ${employee.lavorativo_image ? 'block' : 'none'};">
+                            </div>
+                        </div>
+                        <div class="button-group">
+                            <select class="grade-select" data-id="${employee.id}">
+                                ${grades.map(grade => `<option value="${grade}" ${employee.grade === grade ? 'selected' : ''}>${grade}</option>`).join('')}
+                            </select>
+                            <button class="btn-small promote-btn" data-id="${employee.id}">Promuovi/Degradazione</button>
+                            <button class="btn-small btn-edit" data-id="${employee.id}">Modifica Dati</button>
+                        </div>
+                    `;
+                    employeeList.appendChild(card);
+                });
+
+                // Gestione del cambio di grado
+                document.querySelectorAll('.promote-btn').forEach(btn => {
+                    btn.addEventListener('click', async (event) => {
+                        const employeeId = event.target.dataset.id;
+                        const select = event.target.previousElementSibling;
+                        const newGrade = select.value;
+                        try {
+                            const response = await fetch('/.netlify/functions/updateEmployeeGrade', {
+                                method: 'POST',
+                                body: JSON.stringify({ id: employeeId, grade: newGrade }),
+                                headers: { 'Content-Type': 'application/json' },
+                            });
+                            if (response.ok) {
+                                alert(`Grado aggiornato a ${newGrade}.`);
+                                renderEmployeeList();
+                                renderStipendiTable();
+                            } else {
+                                alert("Si è verificato un errore nell'aggiornamento del grado. Codice di stato: " + response.status);
+                            }
+                        } catch (e) {
+                            console.error("Errore nell'aggiornamento del grado: ", e);
+                            alert("Si è verificato un errore nell'aggiornamento del grado. Controlla la console per i dettagli.");
+                        }
+                    });
+                });
+                
+                // Funzione di modifica
+                document.querySelectorAll('.btn-edit').forEach(btn => {
+                    btn.addEventListener('click', (event) => {
+                        const employeeId = event.target.dataset.id;
+                        // QUI DEVI IMPLEMENTARE LA LOGICA PER MOSTRARE UN FORM DI MODIFICA
+                        alert(`Hai cliccato "Modifica Dati" per il dipendente con ID: ${employeeId}.`);
+                        // In un'applicazione reale, qui faresti una chiamata per caricare i dati del dipendente
+                        // in un form modale o in una sezione dedicata.
+                    });
+                });
+            } catch (e) {
+                console.error("Errore nel caricare la lista dei dipendenti: ", e);
+                employeeList.innerHTML = '<p class="centered-text">Errore nel caricamento dei dipendenti. Controlla la console per i dettagli.</p>';
+            }
+        }
+
+        // Funzione per renderizzare la tabella degli stipendi per grado
+        async function renderGradeRatesTable() {
+            const tableBody = document.getElementById('gradeRatesTableBody');
+            tableBody.innerHTML = '';
+            
+            let gradeRates = {};
+            try {
+                const response = await fetch('/.netlify/functions/getGradeRates');
+                gradeRates = await response.json();
+            } catch (e) {
+                console.error("Errore nel caricare gli stipendi per grado: ", e);
+                tableBody.innerHTML = '<tr><td colspan="2" class="centered-text">Errore nel caricamento degli stipendi.</td></tr>';
+                return;
+            }
+            
+            grades.forEach(grade => {
+                const rate = gradeRates[grade] || 0;
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${grade}</td>
+                    <td><input type="number" class="rate-input" data-grade="${grade}" min="0" step="10" value="${rate}"></td>
+                `;
+                tableBody.appendChild(row);
+            });
+        }
+
+        // Funzione per salvare gli stipendi per grado
+        document.getElementById('saveRatesBtn').addEventListener('click', async () => {
+            const gradeRates = {};
+            document.querySelectorAll('#gradeRatesTableBody .rate-input').forEach(input => {
+                const grade = input.dataset.grade;
+                const rate = parseFloat(input.value) || 0;
+                gradeRates[grade] = rate;
+            });
+            try {
+                const response = await fetch('/.netlify/functions/saveGradeRates', {
+                    method: 'POST',
+                    body: JSON.stringify(gradeRates),
+                    headers: { 'Content-Type': 'application/json' },
+                });
+                if (response.ok) {
+                    alert('Stipendi per grado salvati con successo!');
+                    renderStipendiTable();
+                } else {
+                    alert("Si è verificato un errore nel salvataggio degli stipendi. Codice di stato: " + response.status);
+                }
+            } catch (e) {
+                console.error("Errore nel salvare gli stipendi: ", e);
+                alert("Si è verificato un errore nel salvataggio degli stipendi. Controlla la console per i dettagli.");
+            }
+        });
+        
+        // Funzione per renderizzare la tabella degli stipendi per dipendente
+        async function renderStipendiTable() {
+            const tableBody = document.getElementById('stipendiTableBody');
+            tableBody.innerHTML = '';
+
+            try {
+                const employeesResponse = await fetch('/.netlify/functions/getEmployees');
+                const employees = await employeesResponse.json();
+
+                if (employees.length === 0) {
+                    tableBody.innerHTML = '<tr id="noEmployeesRow"><td colspan="4" class="centered-text">Nessun dipendente registrato.</td></tr>';
+                    document.getElementById('downloadTableBtn').style.display = 'none';
+                    return;
+                }
+
+                employees.forEach(employee => {
+                    const row = document.createElement('tr');
+                    row.dataset.id = employee.id;
+                    row.innerHTML = `
+                        <td>${employee.name}</td>
+                        <td>${employee.grade}</td>
+                        <td><input type="number" class="hours-input" min="0" value="0"></td>
+                        <td class="total-stipendio">0.00 €</td>
+                    `;
+                    tableBody.appendChild(row);
+                });
+            } catch (e) {
+                console.error("Errore nel caricare i dipendenti per la tabella stipendi: ", e);
+                tableBody.innerHTML = '<tr id="noEmployeesRow"><td colspan="4" class="centered-text">Errore nel caricamento dei dipendenti.</td></tr>';
+            }
+        }
+
+        // Funzione per calcolare gli stipendi
+        document.getElementById('calcolaStipendiBtn').addEventListener('click', async () => {
+            let gradeRates = {};
+            try {
+                const response = await fetch('/.netlify/functions/getGradeRates');
+                gradeRates = await response.json();
+            } catch (e) {
+                console.error("Errore nel caricare gli stipendi per grado: ", e);
+                alert("Errore nel caricamento degli stipendi per grado. Non è possibile calcolare gli stipendi.");
+                return;
+            }
+
+            const rows = document.querySelectorAll('#stipendiTableBody tr');
+            let totalHours = 0;
+            const employeeDataForPdf = [];
+            
+            let employees = [];
+            try {
+                const response = await fetch('/.netlify/functions/getEmployees');
+                employees = await response.json();
+            } catch(e) {
+                console.error("Errore nel ricaricare i dipendenti: ", e);
+                alert("Errore nel ricaricamento dei dipendenti. Impossibile continuare.");
+                return;
+            }
+
+            rows.forEach(row => {
+                if (row.id !== 'noEmployeesRow') {
+                    const employeeId = row.dataset.id;
+                    const employee = employees.find(e => e.id == employeeId);
+                    
+                    if (employee) {
+                        const grade = employee.grade;
+                        const ratePerHalfHour = gradeRates[grade] || 0;
+                        const hoursInput = row.querySelector('.hours-input');
+                        const hours = parseFloat(hoursInput.value) || 0;
+                        const totalStipendio = (hours * 2) * ratePerHalfHour;
+                        row.querySelector('.total-stipendio').textContent = `${totalStipendio.toFixed(2)} €`;
+                        totalHours += hours;
+
+                        employeeDataForPdf.push({
+                            name: employee.name,
+                            grade: employee.grade,
+                            hours: hours,
+                            hourlyRate: ratePerHalfHour * 2,
+                            totalSalary: totalStipendio
+                        });
+                    }
+                }
+            });
+
+            localStorage.setItem('totalHours', totalHours);
+            localStorage.setItem('employeeDataForPdf', JSON.stringify(employeeDataForPdf));
+
+            document.getElementById('downloadTableBtn').style.display = 'block';
+        });
+
+        // Funzione per scaricare il PDF
+        document.getElementById('downloadTableBtn').addEventListener('click', () => {
+            const employeeData = JSON.parse(localStorage.getItem('employeeDataForPdf')) || [];
+            const totalHours = localStorage.getItem('totalHours') || 0;
+
+            if (employeeData.length === 0) {
+                alert('Nessun dato da scaricare. Calcola prima gli stipendi.');
+                return;
+            }
+
+            const today = new Date();
+            const dateString = `${today.getDate().toString().padStart(2, '0')}-${(today.getMonth() + 1).toString().padStart(2, '0')}-${today.getFullYear()}`;
+            const topWorkers = [...employeeData].sort((a, b) => b.hours - a.hours).slice(0, 3);
+
+            let topWorkerHtml = '';
+            topWorkers.forEach((worker, index) => {
+                topWorkerHtml += `
+                    <tr>
+                        <td style="border: 1px solid #ccc; padding: 8px;">${index + 1} Top Worker Settimana</td>
+                        <td style="border: 1px solid #ccc; padding: 8px;">${worker.name}</td>
+                    </tr>
+                `;
+            });
+
+            const pdfContent = document.createElement('div');
+            pdfContent.style.fontFamily = 'Arial, sans-serif';
+            pdfContent.style.fontSize = '12px';
+            pdfContent.style.padding = '20px';
+            pdfContent.style.color = '#000';
+            pdfContent.innerHTML = `
+                <h1 style="text-align: center;">Tabella Stipendi</h1>
+                <p><strong>Settimana Lavorativa:</strong> Domenica 13/07/2025 - Domenica 20/07/2025</p>
+                <table style="width: 100%; border-collapse: collapse; margin-top: 20px;">
+                    <thead>
+                        <tr>
+                            <th style="border: 1px solid #ccc; padding: 8px; background-color: #f2f2f2;">Nome e Cognome</th>
+                            <th style="border: 1px solid #ccc; padding: 8px; background-color: #f2f2f2;">Ore Lavorative</th>
+                            <th style="border: 1px solid #ccc; padding: 8px; background-color: #f2f2f2;">Stipendio all'ora ($)</th>
+                            <th style="border: 1px solid #ccc; padding: 8px; background-color: #f2f2f2;">Stipendio ($)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${employeeData.map(emp => `
+                            <tr>
+                                <td style="border: 1px solid #ccc; padding: 8px;">${emp.name}</td>
+                                <td style="border: 1px solid #ccc; padding: 8px;">${emp.hours}</td>
+                                <td style="border: 1px solid #ccc; padding: 8px;">${emp.hourlyRate}</td>
+                                <td style="border: 1px solid #ccc; padding: 8px;">${emp.totalSalary.toFixed(2)}</td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+                <div style="margin-top: 20px;">
+                    <p><strong>Totale ore lavorate (h):</strong> ${totalHours}</p>
+                    <p><strong>Note:</strong> Le mezz'ore (30min) sono contate come 0,5</p>
+                    <table style="margin-top: 10px; width: 50%; border-collapse: collapse;">
+                        <thead>
+                            <tr>
+                                <th style="border: 1px solid #ccc; padding: 8px; background-color: #f2f2f2;" colspan="2">Classifica Settimanale</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                           ${topWorkerHtml}
+                        </tbody>
+                    </table>
+                    <p><strong>Totale Membri:</strong> ${employeeData.length}</p>
+                </div>
+            `;
+
+            const options = {
+                filename: `Stipendi-${dateString}.pdf`,
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2 },
+                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+            };
+
+            html2pdf().from(pdfContent).set(options).save();
+        });
+
+        // Carica i dati all'avvio
+        renderEmployeeList();
+        renderGradeRatesTable();
+        renderStipendiTable();
+    });
+</script>
+
+</body>
+</html>
